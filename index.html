@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Teacher Helper Hub</title>
+    <script>
+      // 테마 깜빡임 방지 — 페인트 전 적용
+      (function () {
+        try {
+          var t = localStorage.getItem("theme");
+          if (t === "dark" || (!t && window.matchMedia("(prefers-color-scheme:dark)").matches)) {
+            document.documentElement.classList.add("dark");
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <style>
+      :root {
+        --bg: #f6f3ee;
+        --panel: #fffdf8;
+        --ink: #1e2328;
+        --muted: #68707a;
+        --line: #ddd6ca;
+        --accent: #1f7a6d;
+        --shadow: 0 18px 50px rgba(34, 36, 39, 0.12);
+        --radius: 8px;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+      }
+
+      html.dark {
+        --bg: #0f172a;
+        --panel: #1e293b;
+        --ink: #f1f5f9;
+        --muted: #94a3b8;
+        --line: #334155;
+        --accent: #2dd4bf;
+        --shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          linear-gradient(120deg, rgba(31, 122, 109, 0.12), transparent 34%),
+          radial-gradient(circle at 86% 12%, rgba(214, 90, 49, 0.16), transparent 26%),
+          var(--bg);
+        color: var(--ink);
+        transition:
+          background-color 200ms ease,
+          color 200ms ease;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .page {
+        width: min(1120px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 56px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        min-height: 48px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 760;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        border-radius: 8px;
+        background: var(--ink);
+        color: var(--panel);
+        font-size: 17px;
+      }
+
+      .theme-toggle {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        color: var(--ink);
+        cursor: pointer;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 650;
+        padding: 8px 12px;
+      }
+
+      .theme-toggle:hover,
+      .theme-toggle:focus-visible {
+        border-color: var(--accent);
+        outline: none;
+      }
+
+      .hero {
+        padding: 74px 0 34px;
+      }
+
+      .eyebrow {
+        margin: 0 0 10px;
+        color: var(--accent);
+        font-size: 13px;
+        font-weight: 760;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        max-width: 760px;
+        margin: 0;
+        font-size: clamp(40px, 7vw, 84px);
+        line-height: 0.96;
+      }
+
+      .project-section {
+        padding-top: 22px;
+      }
+
+      .site-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 18px;
+      }
+
+      .site-card {
+        position: relative;
+        display: grid;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--panel);
+        box-shadow: 0 8px 28px rgba(34, 36, 39, 0.08);
+        transition:
+          transform 160ms ease,
+          border-color 160ms ease,
+          box-shadow 160ms ease;
+      }
+
+      .site-card:hover,
+      .site-card:focus-visible {
+        border-color: var(--accent);
+        box-shadow: var(--shadow);
+        outline: none;
+        transform: translateY(-3px);
+      }
+
+      .preview {
+        position: relative;
+        min-height: 96px;
+        background:
+          linear-gradient(135deg, rgba(36, 84, 166, 0.92), rgba(31, 122, 109, 0.9)),
+          #2454a6;
+      }
+
+      .preview::before {
+        position: absolute;
+        inset: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.32);
+        border-radius: 8px;
+        content: "";
+      }
+
+      .favicon {
+        position: absolute;
+        left: 22px;
+        bottom: -22px;
+        width: 52px;
+        height: 52px;
+        border: 4px solid var(--panel);
+        border-radius: 8px;
+        background: #fff;
+        object-fit: contain;
+        padding: 6px;
+        box-shadow: 0 10px 26px rgba(30, 35, 40, 0.18);
+      }
+
+      .card-body {
+        display: grid;
+        align-content: start;
+        gap: 12px;
+        padding: 38px 20px 20px;
+      }
+
+      .site-card h2 {
+        margin: 0;
+        font-size: 22px;
+        line-height: 1.15;
+      }
+
+      .description {
+        min-height: 44px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.45;
+      }
+
+      .card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 4px;
+      }
+
+      .domain {
+        min-width: 0;
+        overflow: hidden;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 650;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .open-icon {
+        position: relative;
+        flex: 0 0 auto;
+        width: 30px;
+        height: 30px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+      }
+
+      .open-icon::before {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 9px;
+        height: 9px;
+        border-top: 2px solid var(--ink);
+        border-right: 2px solid var(--ink);
+        content: "";
+      }
+
+      .open-icon::after {
+        position: absolute;
+        top: 14px;
+        right: 8px;
+        width: 14px;
+        height: 2px;
+        border-radius: 999px;
+        background: var(--ink);
+        content: "";
+        transform: rotate(-45deg);
+        transform-origin: right center;
+      }
+
+      @media (max-width: 720px) {
+        .page {
+          width: min(100% - 24px, 1120px);
+          padding-top: 18px;
+        }
+
+        .hero {
+          padding: 48px 0 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="topbar">
+        <a class="brand" href="./index.html" aria-label="홈">
+          <span class="brand-mark" aria-hidden="true">T</span>
+          <span>Teacher Helper Hub</span>
+        </a>
+        <button id="themeToggle" class="theme-toggle" type="button" aria-label="테마 전환">
+          🌙 다크
+        </button>
+      </header>
+
+      <main>
+        <section class="hero" aria-labelledby="page-title">
+          <p class="eyebrow">Vercel · GitHub Pages · Static Sites</p>
+          <h1 id="page-title">Teacher Helper Hub</h1>
+        </section>
+
+        <section id="projects" class="project-section" aria-label="사이트 목록">
+          <div id="siteGrid" class="site-grid"></div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      /*
+        홈페이지 목록 수정 위치
+
+        - 추가: 아래 { ... }, 한 덩어리를 복사해서 ] 바로 위에 붙여넣기
+        - 삭제: 지우고 싶은 { ... }, 한 덩어리를 통째로 삭제
+        - 링크 변경: url: "여기에 새 링크"
+        - 이름 변경: title: "여기에 이름"
+        - 설명 변경: description: "여기에 설명"
+
+        주의: 따옴표(" ")는 지우지 않기, 덩어리 끝 쉼표(,)는 남겨두기
+      */
+      const sites = [
+        {
+          title: "수업 진도 관리",
+          url: "https://teacher-schedule-app-ruddy.vercel.app",
+          description: "수업 진도 및 수행평가 일정 관리",
+        },
+        {
+          title: "교육과정 리터러시",
+          url: "https://curriculum-literacy-web.vercel.app",
+          description: "22개정 교육과정 기반 교육과정 리터러시",
+        },
+        {
+          title: "과학 학습 사이트",
+          url: "https://chemyoon.github.io/",
+          description: "중고등학교 과학 통합 학습 홈페이지",
+        },
+      ];
+
+      const grid = document.querySelector("#siteGrid");
+      const themeToggle = document.querySelector("#themeToggle");
+
+      function getDomain(url) {
+        try {
+          return new URL(url).hostname.replace(/^www\./, "");
+        } catch {
+          return url;
+        }
+      }
+
+      function getFaviconUrl(url) {
+        return `https://www.google.com/s2/favicons?sz=128&domain_url=${encodeURIComponent(url)}`;
+      }
+
+      function createCard(site) {
+        const card = document.createElement("a");
+        card.className = "site-card";
+        card.href = site.url;
+        card.target = "_blank";
+        card.rel = "noreferrer";
+        card.setAttribute("aria-label", `${site.title} 열기`);
+
+        const preview = document.createElement("div");
+        preview.className = "preview";
+
+        const favicon = document.createElement("img");
+        favicon.className = "favicon";
+        favicon.src = getFaviconUrl(site.url);
+        favicon.alt = "";
+        favicon.loading = "lazy";
+        favicon.addEventListener("error", () => favicon.remove());
+
+        const body = document.createElement("div");
+        body.className = "card-body";
+
+        const title = document.createElement("h2");
+        title.textContent = site.title;
+
+        const description = document.createElement("p");
+        description.className = "description";
+        description.textContent = site.description;
+
+        const footer = document.createElement("div");
+        footer.className = "card-footer";
+        footer.innerHTML = `<span class="domain">${getDomain(site.url)}</span><span class="open-icon" aria-hidden="true"></span>`;
+
+        preview.append(favicon);
+        body.append(title, description, footer);
+        card.append(preview, body);
+        return card;
+      }
+
+      function renderSites() {
+        grid.replaceChildren(...sites.map(createCard));
+      }
+
+      function syncToggleLabel() {
+        const dark = document.documentElement.classList.contains("dark");
+        themeToggle.textContent = dark ? "☀️ 라이트" : "🌙 다크";
+      }
+
+      themeToggle.addEventListener("click", () => {
+        const next = !document.documentElement.classList.contains("dark");
+        document.documentElement.classList.toggle("dark", next);
+        localStorage.setItem("theme", next ? "dark" : "light");
+        syncToggleLabel();
+      });
+
+      syncToggleLabel();
+      renderSites();
+    </script>
+  </body>
+</html>
